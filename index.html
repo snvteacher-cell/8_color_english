@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кольорова англійська</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#eef2ec; --surface:#ffffff; --fg:#1d2a24; --muted:#5c6b63; --line:#cfd9d2;
+  --board:#1f6b4a; --board-soft:#dcebe2; --copper:#b8681c; --copper-soft:#f6e6d2;
+  --gold:#c98a00; --gold-soft:#fbf0d3;
+  --ok:#1f8a4c; --bad:#c2412d; --ok-soft:#dff1e6; --bad-soft:#f8e1dc;
+  --code-bg:#f7faf8; --kw:#c25e00; --st:#1d8a3a; --fn:#2456c9; --bi:#8a3fc2; --cm:#8a9a91;
+  --display:"Unbounded","Trebuchet MS",sans-serif;
+  --body:"Nunito","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121a16; --surface:#1a2620; --fg:#e6efe9; --muted:#9fb1a7; --line:#2d3d35;
+  --board:#4fbf8a; --board-soft:#1f3a2d; --copper:#e3a35d; --copper-soft:#3a2b1a;
+  --gold:#ffc94d; --gold-soft:#3a2f12;
+  --ok:#56c98a; --bad:#ef7a64; --ok-soft:#1d3a2a; --bad-soft:#3f231e;
+  --code-bg:#14201a; --kw:#ffab5c; --st:#7fd88f; --fn:#8fb4ff; --bi:#d39cff; --cm:#6f8378; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a16; --surface:#1a2620; --fg:#e6efe9; --muted:#9fb1a7; --line:#2d3d35;
+  --board:#4fbf8a; --board-soft:#1f3a2d; --copper:#e3a35d; --copper-soft:#3a2b1a;
+  --gold:#ffc94d; --gold-soft:#3a2f12;
+  --ok:#56c98a; --bad:#ef7a64; --ok-soft:#1d3a2a; --bad-soft:#3f231e;
+  --code-bg:#14201a; --kw:#ffab5c; --st:#7fd88f; --fn:#8fb4ff; --bi:#d39cff; --cm:#6f8378; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:18px;line-height:1.5;margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.25rem,3.4vw,2rem);line-height:1.15;margin:0;text-wrap:balance}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 14px}
+.tab{font:inherit;font-weight:800;font-size:.95rem;padding:6px 14px 6px 6px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;display:flex;align-items:center;gap:8px}
+.tab b{font-family:var(--display);font-weight:500;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);font-size:.85rem}
+.tab[aria-selected="true"]{background:var(--board);border-color:var(--board);color:var(--surface)}
+.tab[aria-selected="true"] b{border-color:var(--surface)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--copper);outline-offset:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(14px,2.6vw,24px)}
+h2{font-family:var(--display);font-weight:500;font-size:1.2rem;margin:0 0 12px;text-wrap:balance}
+.h2n{font-family:var(--body);font-weight:600;font-size:.92rem;color:var(--muted)}
+h3{font-family:var(--display);font-weight:500;font-size:1.05rem;margin:0 0 8px}
+.btn{font:inherit;font-weight:800;font-size:1rem;padding:9px 16px;min-height:44px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;touch-action:manipulation}
+.btn.main{background:var(--board);border-color:var(--board);color:var(--surface)}
+.btn.sm{min-height:38px;padding:5px 12px;font-size:.92rem}
+.btn:disabled{opacity:.45;cursor:default}
+.row-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pills button{font:inherit;font-weight:700;font-size:.95rem;padding:6px 14px;border-radius:999px;border:2px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;display:flex;align-items:center;gap:6px}
+.pills button[aria-pressed="true"]{border-color:var(--board);background:var(--board-soft)}
+.pills .ck{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.pills .done .ck{color:var(--ok);font-weight:800}
+.fb{margin-top:12px;padding:12px 14px;border-radius:12px;font-size:1rem}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--bad-soft)} .fb.info{background:var(--gold-soft)}
+.fb .ttl{font-weight:800;display:block}
+.fb ul{margin:6px 0 0;padding-left:20px}
+code{font-family:var(--mono);font-size:.92em}
+.author{margin:16px 0 0;font-size:.75rem;color:var(--muted);opacity:.6;text-align:left}
+.toast{position:fixed;left:50%;top:14px;transform:translate(-50%,-200px);visibility:hidden;transition:transform .35s;z-index:30;background:var(--gold);color:#1b1400;font-weight:800;padding:10px 18px;border-radius:99px;box-shadow:0 6px 20px rgba(0,0,0,.18);max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0);visibility:visible}
+
+/* code */
+.code{font-family:var(--mono);font-size:.9rem;background:var(--code-bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;line-height:1.75;white-space:pre-wrap;word-break:break-word;margin:0}
+.code .kw{color:var(--kw);font-weight:700} .code .st{color:var(--st)} .code .fn{color:var(--fn);font-weight:700} .code .bi{color:var(--bi)} .code .cm{color:var(--cm);font-style:italic}
+.code .new{background:var(--gold-soft);outline:2px solid var(--gold);border-radius:4px;box-decoration-break:clone;-webkit-box-decoration-break:clone;padding:1px 2px}
+.code .tip{border-bottom:2px dotted var(--muted);cursor:help}
+.tipbox{position:fixed;z-index:40;display:none;max-width:240px;background:#1d2a24;color:#fff;font-size:.85rem;line-height:1.35;padding:6px 10px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none}
+.code mark{background:var(--gold-soft);color:inherit;border-radius:4px;outline:2px solid var(--gold);padding:0 2px}
+
+/* tkinter window */
+.winbox{width:100%;display:flex;justify-content:center}
+.win{border:1px solid #9aa5a0;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.12);background:#f0f0f0;color:#111;max-width:100%}
+.win .tb{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#fff;border-bottom:1px solid #ccc;font-family:"Segoe UI",system-ui,sans-serif;font-size:.85rem}
+.win .tb svg{width:16px;height:16px;flex:none}
+.win .tb .tt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win .tb .wc{letter-spacing:10px;color:#444;font-size:.9rem}
+.wv{position:relative;overflow:hidden}
+.wbody{position:absolute;left:0;top:0;transform-origin:0 0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;font-size:12px;transition:background-color .25s}
+.wbody.grid{background-image:linear-gradient(rgba(0,0,0,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.1) 1px,transparent 1px);background-size:50px 50px}
+.wbody .gl{position:absolute;font-style:normal;font-size:10px;color:#666;font-family:var(--mono)}
+.wbody .wb{position:absolute;font-family:inherit;font-size:12px;padding:0 2px;border:2px outset #e4e4e4;background:#f0f0f0;color:#000;cursor:pointer;white-space:nowrap;overflow:hidden;line-height:22px;text-align:center;touch-action:manipulation}
+.wbody .wb:active{border-style:inset}
+.wbody .wl{position:absolute;background:#f0f0f0;line-height:21px;white-space:nowrap;padding:0 3px}
+.wempty{padding:40px 12px;text-align:center;color:#777;font-size:.9rem}
+.wmsg{position:absolute;inset:0;background:rgba(0,0,0,.25);display:grid;place-items:center}
+.wmsg .box{background:#fff;border:1px solid #888;min-width:70%;max-width:92%;font-family:"Segoe UI",sans-serif;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.wmsg .bt{padding:4px 8px;border-bottom:1px solid #ddd}
+.wmsg .bx{padding:14px 10px}
+.wmsg .bf{background:#f0f0f0;padding:6px;text-align:right}
+.wmsg .bf button{font:inherit;padding:2px 18px}
+.console{margin-top:10px;background:#101814;color:#d6f5e3;border-radius:10px;padding:8px 10px;font-family:var(--mono);font-size:.8rem;min-height:60px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.console .c{color:#7d978a;font-style:italic} .console .e{color:#ff8c7a} .console .m{color:#f0c36c}
+
+/* explanation */
+.sl-dots{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.sl-dots button{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-weight:800;font-size:.85rem;cursor:pointer;padding:0}
+.sl-dots button.seen{border-color:var(--board)}
+.sl-dots button.cur{background:var(--board);border-color:var(--board);color:var(--surface)}
+.slide{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+.slide h3{color:var(--board);font-size:1.1rem}
+.slide p{margin:0 0 10px}
+.note{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.note li{border-left:5px solid var(--board);background:var(--bg);border-radius:6px;padding:5px 10px;font-size:.95rem;line-height:1.4}
+.note code{font-weight:700;color:var(--board)}
+.try{margin-top:8px;font-weight:800;color:var(--copper);font-size:.95rem;text-align:center}
+.ctl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.sw{width:38px;height:38px;border-radius:10px;border:2px solid var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{outline:3px solid var(--copper);outline-offset:2px}
+
+/* project */
+.task{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:var(--board-soft);border-left:5px solid var(--board)}
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.code .blank{font:inherit;font-weight:700;min-width:5ch;min-height:28px;border:0;border-bottom:3px solid var(--copper);background:var(--copper-soft);border-radius:6px;padding:0 6px;color:var(--fg);cursor:pointer;touch-action:manipulation;vertical-align:baseline}
+.code .blank.sel{outline:3px solid var(--board);outline-offset:1px}
+.code .blank.ok{border-color:var(--ok);background:var(--ok-soft)}
+.code .blank.no{border-color:var(--bad);background:var(--bad-soft)}
+.bank{position:sticky;bottom:0;z-index:3;background:var(--surface);padding:10px 0 8px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px dashed var(--line);margin-top:10px}
+.bank button,.keys button{font-family:var(--mono);font-weight:700;font-size:.95rem;min-width:40px;min-height:40px;padding:4px 10px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;touch-action:manipulation}
+.bank .lbl{flex-basis:100%;font-size:.85rem;color:var(--muted);font-weight:700}
+.edwrap{display:grid;grid-template-columns:auto minmax(0,1fr);border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--code-bg)}
+.gut{font-family:var(--mono);font-size:16px;line-height:1.55;padding:8px 6px;color:var(--cm);text-align:right;user-select:none;background:var(--bg);border-right:1px solid var(--line);white-space:pre;overflow:hidden}
+.gut .el{background:var(--bad-soft);color:var(--bad);font-weight:800;display:inline-block;width:100%}
+textarea.ed{font-family:var(--mono);font-size:16px;line-height:1.55;padding:8px 10px;border:0;resize:vertical;min-height:300px;background:transparent;color:var(--fg);white-space:pre;overflow:auto;tab-size:4;outline:none;width:100%}
+.keys{position:sticky;bottom:0;z-index:3;background:var(--surface);padding:8px 0;display:flex;flex-wrap:wrap;gap:5px}
+.keys button{min-width:38px;font-size:.95rem}
+.keys .sn{font-family:var(--body);color:var(--board);border-color:var(--board)}
+.keys .sw{width:40px;height:40px;min-width:0}
+.err{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--bad-soft);border:2px solid var(--bad);font-size:.95rem}
+.err .et{font-family:var(--mono);font-weight:700;color:var(--bad);display:block;word-break:break-word}
+.err .ln{font-family:var(--mono);font-size:.85rem;background:var(--surface);border-radius:6px;padding:2px 6px;display:inline-block;margin:4px 0;white-space:pre-wrap}
+.reqs{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:4px;font-size:.95rem}
+.reqs li{padding:4px 10px;border-radius:8px;background:var(--bg)}
+.reqs li.y{background:var(--ok-soft)} .reqs li.y::before{content:"✓ ";color:var(--ok);font-weight:800}
+.reqs li.n{background:var(--bad-soft)} .reqs li.n::before{content:"✗ ";color:var(--bad);font-weight:800}
+.reqs li.u::before{content:"○ ";color:var(--muted)}
+.prtable{width:100%;border-collapse:collapse;font-size:1rem;margin:8px 0 14px}
+.prtable td{border-bottom:1px solid var(--line);padding:6px}
+.prtable td:last-child{text-align:right;font-weight:800;white-space:nowrap}
+.namebox{display:grid;gap:8px;margin:0 0 6px;max-width:420px}
+.namebox label{font-weight:800;display:grid;gap:4px}
+.namebox input{font:inherit;font-size:16px;padding:9px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg)}
+.scale{color:var(--muted);font-size:.92rem;margin:0}
+
+.card{border:2px solid var(--board);border-radius:16px;padding:14px;background:var(--surface);margin-top:10px}
+.cardhd{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cardhd b{display:block;font-size:1.15rem}
+.cardhd span{font-weight:800;color:var(--muted)}
+.cardhd small{display:block;color:var(--muted);font-size:.85rem}
+.grade{font-family:var(--display);font-weight:700;font-size:2.6rem;line-height:1;color:var(--board);text-align:center}
+.grade small{display:block;font-family:var(--body);font-size:.8rem;color:var(--muted)}
+.cardbody{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start}
+.code.small{font-size:.72rem;line-height:1.45;padding:8px}
+@media (max-width:720px){.cardbody{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.slide,.lab{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:720px){
+  body{font-size:17px}
+  .wrap{padding-block:12px calc(84px + env(safe-area-inset-bottom,0px))}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.07)}
+  .tab{border:0;border-radius:12px;padding:5px 0;font-size:.75rem;font-weight:700;flex-direction:column;gap:2px;background:transparent;justify-content:center}
+  .tab[aria-selected="true"]{background:var(--board-soft);color:var(--board)}
+  .tab[aria-selected="true"] b{background:var(--board);border-color:var(--board);color:var(--surface)}
+  body.typing .tabs{display:none}
+  body:not(.typing) .bank,body:not(.typing) .keys{bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+  .panel{padding:14px 12px;border-radius:16px}
+  .code{font-size:.82rem;padding:8px 10px}
+  .pills{flex-wrap:nowrap;overflow-x:auto;margin-inline:-12px;padding:0 12px 4px}
+  .pills button{flex:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Кольорова англійська</h1>
+
+  <nav class="tabs" role="tablist" aria-label="Розділи">
+    <button class="tab" role="tab" id="t-th" aria-controls="p-th" aria-selected="true"><b>1</b><span>Пояснення</span></button>
+    <button class="tab" role="tab" id="t-pr" aria-controls="p-pr" aria-selected="false"><b>2</b><span>Проєкт</span></button>
+    <button class="tab" role="tab" id="t-sd" aria-controls="p-sd" aria-selected="false"><b>3</b><span>Результат</span></button>
+  </nav>
+
+  <section class="panel" id="p-th" role="tabpanel" aria-labelledby="t-th">
+    <h2>Пояснення <span class="h2n">(6 кроків: нове виділено рамкою і пояснено внизу; наведи чи натисни на підкреслену команду — буде підказка)</span></h2>
+    <div class="sl-dots" id="slDots"></div>
+    <div id="slide"></div>
+    <div class="row-btns" style="justify-content:space-between"><button class="btn" id="slPrev">← Назад</button><button class="btn main" id="slNext">Далі →</button></div>
+  </section>
+
+  <section class="panel" id="p-pr" role="tabpanel" aria-labelledby="t-pr" hidden>
+    <h2>Проєкт <span class="h2n">(мінімум — кроки 1 і 2: 6 балів; крок 3 — до 12)</span></h2>
+    <div class="pills" id="prPills"></div>
+    <div id="prBox"></div>
+  </section>
+
+  <section class="panel" id="p-sd" role="tabpanel" aria-labelledby="t-sd" hidden>
+    <h2>Результат <span class="h2n">(для скріншота)</span></h2>
+    <div id="sdBox"></div>
+  </section>
+
+  <p class="author">© Сидорчук Н.В.</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const TEACHER_EMAIL='snv.teacher@gmail.com';
+const TITLE='Кольорова англійська (tkinter)';
+const KEY='tk8btn-';
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const ls={get(k){try{return localStorage.getItem(KEY+k)}catch(e){return null}},set(k,v){try{localStorage.setItem(KEY+k,v)}catch(e){}}};
+const isPhone=()=>window.matchMedia('(max-width:720px)').matches;
+let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2500)}
+
+/* ---------- syntax highlight ---------- */
+const KW=new Set(['from','import','def','for','in','return','if','else','while','True','False','None']);
+const BI=new Set(['print','Button','Label','Tk','mainloop','messagebox']);
+function hl(s){let out='',m,prevDef=false;const re=/("(?:[^"\\\n]|\\.)*"?|'(?:[^'\\\n]|\\.)*'?)|([A-Za-z_][A-Za-z0-9_]*)|(#.*)|([\s\S])/g;
+  while((m=re.exec(s))){
+    if(m[1]){out+=`<span class="st">${esc(m[1])}</span>`;prevDef=false}
+    else if(m[2]){const w=m[2];
+      if(KW.has(w)){out+=`<span class="kw">${w}</span>`;prevDef=w==='def';continue}
+      out+=prevDef?`<span class="fn">${w}</span>`:BI.has(w)?`<span class="bi">${w}</span>`:esc(w);prevDef=false}
+    else if(m[3])out+=`<span class="cm">${esc(m[3])}</span>`;
+    else{out+=esc(m[4]);if(!/\s/.test(m[4]))prevDef=false}}
+  return out}
+
+/* =========================================================
+   MINI PYTHON + tkinter (Tk, Button, Label, place, bind, window['bg'], messagebox)
+   ========================================================= */
+const PY=(()=>{
+  class PyErr extends Error{constructor(type,msg,line,hint){super(msg);this.type=type;this.line=line;this.hint=hint}}
+  const NONE=null;
+  const OPTS=new Set(['text','bg','background','fg','foreground','width','height','command','font','padx','pady','activebackground','activeforeground','relief','bd','borderwidth','state','anchor','justify']);
+  const CLICK=new Set(['<Button-1>','<1>','<ButtonPress-1>','<ButtonRelease-1>']);
+  const SEQOK=/^<(Button-[1-3]|ButtonPress-[1-3]|ButtonRelease-[1-3]|[1-3]|Double-Button-1|Enter|Leave|Motion|Return|Key)>$/;
+  function lev(a,b){const d=[];for(let i=0;i<=a.length;i++){d[i]=[i];for(let j=1;j<=b.length;j++)d[i][j]=i?Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)):j}return d[a.length][b.length]}
+  function stripComment(s){let q=null;for(let i=0;i<s.length;i++){const c=s[i];if(q){if(c==='\\'){i++;continue}if(c===q)q=null}else if(c==='"'||c==="'")q=c;else if(c==='#')return s.slice(0,i)}return s}
+  function checkLine(s,ln){let q=null,d=0,b=0;
+    for(let i=0;i<s.length;i++){const c=s[i];if(q){if(c==='\\'){i++;continue}if(c===q)q=null;continue}
+      if(c==='"'||c==="'")q=c;else if(c==='(')d++;else if(c===')'){d--;if(d<0)throw new PyErr('SyntaxError',"unmatched ')'",ln,'Зайва закривна дужка «)».')}
+      else if(c==='[')b++;else if(c===']'){b--;if(b<0)throw new PyErr('SyntaxError',"unmatched ']'",ln,'Зайва квадратна дужка «]».')}}
+    if(q)throw new PyErr('SyntaxError','unterminated string literal',ln,'Лапки відкрито, але не закрито. Текст береться в лапки з обох боків: \'Yellow\' або "yellow".');
+    if(d>0)throw new PyErr('SyntaxError',"'(' was never closed",ln,'Дужку «(» відкрито, але не закрито.');
+    if(b>0)throw new PyErr('SyntaxError',"'[' was never closed",ln,'Квадратну дужку «[» відкрито, але не закрито: window[\'bg\'].')}
+  function lex(s,ln){const T=[];const re=/\s*(?:("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\d+(?:\.\d+)?)|([A-Za-z_Ѐ-ӿ][A-Za-z0-9_Ѐ-ӿ]*)|(\/\/|==|!=|<=|>=|[-+*/%(),=.:<>\[\]]))/y;let m;re.lastIndex=0;
+    while(re.lastIndex<s.length){const p=re.lastIndex;m=re.exec(s);if(!m){if(/^\s*$/.test(s.slice(p)))break;
+        const ch=s.slice(p).trim()[0];throw new PyErr('SyntaxError','invalid character \''+ch+'\'',ln,'У рядку є символ, якого Python не розуміє. Лапки пиши звичайні: \' або ".')}
+      if(m[1]!==undefined)T.push({t:'s',v:m[1].slice(1,-1).replace(/\\n/g,'\n').replace(/\\(.)/g,'$1')});
+      else if(m[2]!==undefined)T.push({t:'n',v:+m[2]});
+      else if(m[3]!==undefined)T.push({t:'id',v:m[3]});
+      else if(m[4]!==undefined)T.push({t:'op',v:m[4]});
+      else break}
+    return T}
+  function parseExpr(T,ln){let i=0;const peek=()=>T[i],eat=v=>{if(T[i]&&T[i].v===v&&T[i].t==='op'){i++;return true}return false};
+    const need=(v,hint)=>{if(!eat(v))throw new PyErr('SyntaxError','invalid syntax',ln,hint||`Очікувався символ «${v}».`)};
+    function args(){const a=[],kw={};if(eat(')'))return{a,kw};
+      do{if(T[i]&&T[i].t==='id'&&T[i+1]&&T[i+1].v==='='&&T[i+1].t==='op'){const k=T[i].v;i+=2;if(!T[i]||T[i].v===','||T[i].v===')')throw new PyErr('SyntaxError','invalid syntax',ln,`Після «${k}=» бракує значення.`);kw[k]=expr()}
+        else{if(Object.keys(kw).length)throw new PyErr('SyntaxError','positional argument follows keyword argument',ln,'Спочатку пишуть значення без імені (window), потім ім’я=значення (text=…).');a.push(expr())}}
+      while(eat(','));need(')','Бракує закривної дужки «)» або коми між частинами. Текст має бути в лапках.');return{a,kw}}
+    function atom(){const t=T[i];if(!t)throw new PyErr('SyntaxError','invalid syntax',ln,'Рядок обірвався: чогось бракує.');
+      if(t.t==='s'||t.t==='n'){i++;return{k:'lit',v:t.v}}
+      if(t.t==='id'){i++;if(t.v==='True')return{k:'lit',v:true};if(t.v==='False')return{k:'lit',v:false};if(t.v==='None')return{k:'lit',v:NONE};return{k:'name',v:t.v}}
+      if(eat('(')){const e=expr();need(')');return e}
+      throw new PyErr('SyntaxError','invalid syntax',ln,`Неочікуваний символ «${t.v}».`)}
+    function post(){let e=atom();for(;;){if(eat('(')){const {a,kw}=args();e={k:'call',f:e,a,kw}}
+        else if(eat('.')){const t=T[i];if(!t||t.t!=='id')throw new PyErr('SyntaxError','invalid syntax',ln,'Після крапки має йти ім’я методу.');i++;e={k:'attr',o:e,v:t.v}}
+        else if(eat('[')){const k=expr();need(']');e={k:'idx',o:e,key:k}}
+        else break}return e}
+    function unary(){if(eat('-'))return{k:'neg',e:unary()};return post()}
+    function term(){let e=unary();for(;;){const t=peek();if(t&&t.t==='op'&&['*','/','//','%'].includes(t.v)){i++;e={k:'bin',op:t.v,l:e,r:unary()}}else return e}}
+    function sum(){let e=term();for(;;){const t=peek();if(t&&t.t==='op'&&['+','-'].includes(t.v)){i++;e={k:'bin',op:t.v,l:e,r:term()}}else return e}}
+    function expr(){return sum()}
+    const e=expr();if(i<T.length){const t=T[i];
+      if(t.v==='=')throw new PyErr('SyntaxError','invalid syntax',ln,'Знак «=» тут зайвий або стоїть не там.');
+      throw new PyErr('SyntaxError','invalid syntax',ln,t.t==='s'||t.t==='id'||t.t==='n'?'Між частинами бракує коми чи дужки, або текст не взято в лапки.':`Зайвий символ «${t.v}».`)}
+    return e}
+  function parse(src){
+    src=src.replace(/\r/g,'').replace(/[“”„«»]/g,'"').replace(/[‘’]/g,"'").replace(/\t/g,'    ').replace(/ /g,' ');
+    const L=[];src.split('\n').forEach((raw,k)=>{const t=stripComment(raw);if(!t.trim())return;L.push({n:k+1,ind:t.match(/^ */)[0].length,t:t.trim()})});
+    let p=0;
+    function block(ind){const out=[];while(p<L.length){const l=L[p];if(l.ind<ind)break;
+        if(l.ind>ind)throw new PyErr('IndentationError','unexpected indent',l.n,'Зайвий відступ: цей рядок не належить до функції. Прибери пробіли на початку.');
+        p++;out.push(stmt(l))}return out}
+    function body(h){if(p>=L.length||L[p].ind<=h.ind)throw new PyErr('IndentationError',`expected an indented block after function definition on line ${h.n}`,p<L.length?L[p].n:h.n,'Рядок усередині функції треба зсунути вправо на 4 пробіли (кнопка ⇥).');
+      const ind=L[p].ind,b=block(ind);
+      if(p<L.length&&L[p].ind>h.ind&&L[p].ind<ind)throw new PyErr('IndentationError','unindent does not match any outer indentation level',L[p].n,'Відступи у функції мають бути однакові.');
+      return b}
+    function stmt(l){const s=l.t,n=l.n;checkLine(s,n);
+      if(/^from\b/.test(s)||/^import\b/.test(s)){
+        if(/^from\s+tkinter\s+import\s*\*$/.test(s))return{k:'imp',n,w:'*'};
+        if(/^from\s+tkinter\s+import\s+messagebox$/.test(s))return{k:'imp',n,w:'mb'};
+        if(/Tkinter/.test(s))throw new PyErr('ModuleNotFoundError',"No module named 'Tkinter'",n,'Назва модуля пишеться з малої літери: tkinter.');
+        throw new PyErr('Тренажер','такий імпорт тут не підтримується',n,'Пиши так: from tkinter import *')}
+      if(/^def\b/.test(s)){const m=s.match(/^def\s+([A-Za-z_]\w*)\s*(\(([^)]*)\))?\s*(:)?$/);
+        if(!m)throw new PyErr('SyntaxError','invalid syntax',n,'Функцію описують так: def clik1 (event):');
+        if(!m[2])throw new PyErr('SyntaxError','invalid syntax',n,'Після імені функції потрібні дужки: def '+m[1]+' (event):');
+        if(!m[4])throw new PyErr('SyntaxError',"expected ':'",n,'У кінці рядка def потрібна двокрапка «:».');
+        const ps=m[3].split(',').map(x=>x.trim()).filter(Boolean);
+        ps.forEach(x=>{if(!/^[A-Za-z_]\w*$/.test(x))throw new PyErr('SyntaxError','invalid syntax',n,'У дужках після імені функції пишуть лише слово event: def '+m[1]+' (event):')});
+        return{k:'def',n,name:m[1],ps,b:body(l)}}
+      if(/^(if|while|else|elif|class|try|with|for)\b/.test(s))throw new PyErr('Тренажер','ця команда в тренажері не потрібна',n,'Для проєкту досить: def, Tk(), Button, place, bind.');
+      if(/:$/.test(s))throw new PyErr('SyntaxError','invalid syntax',n,'Двокрапка в кінці рядка потрібна лише після def.');
+      const mi=s.match(/^([A-Za-z_]\w*)\s*\[(.+)\]\s*=(?!=)\s*(.*)$/);
+      if(mi){if(!mi[3])throw new PyErr('SyntaxError','invalid syntax',n,'Після «=» бракує значення: window[\'bg\']="yellow"');return{k:'setitem',n,o:mi[1],key:parseExpr(lex(mi[2],n),n),e:parseExpr(lex(mi[3],n),n)}}
+      const m=s.match(/^([A-Za-z_Ѐ-ӿ][A-Za-z0-9_Ѐ-ӿ]*)\s*=(?!=)\s*(.*)$/);
+      if(m){if(!m[2])throw new PyErr('SyntaxError','invalid syntax',n,'Після «=» бракує значення.');return{k:'asg',n,v:m[1],e:parseExpr(lex(m[2],n),n)}}
+      const ma=s.match(/^([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$/);
+      if(ma)return{k:'setattr',n,o:ma[1],a:ma[2],e:parseExpr(lex(ma[3],n),n)};
+      const e=parseExpr(lex(s,n),n);
+      if(e.k==='attr')throw new PyErr('Підказка','метод згадано, але не викликано',n,`Щоб виконати метод, допиши дужки: ${s}()`);
+      return{k:'expr',n,e}}
+    return block(0)}
+
+  function make(hooks){
+    const G=new Map(),W=[];let steps=0,depth=0,uid=0,root=null;
+    const typeName=v=>v===NONE?'NoneType':typeof v==='string'?'str':typeof v==='number'?(Number.isInteger(v)?'int':'float'):typeof v==='boolean'?'bool':v.kind==='w'?v.type:v.kind==='fn'||v.kind==='bi'?'function':v.kind==='tk'?'Tk':v.kind==='event'?'Event':'object';
+    const show=v=>v===NONE?'None':v===true?'True':v===false?'False':typeof v==='number'?String(+v.toFixed(10)):typeof v==='string'?v:v.kind==='w'?`.!${v.type.toLowerCase()}${v.id>1?v.id:''}`:v.kind==='fn'?`<function ${v.name}>`:v.kind==='tk'?'.':v.kind==='event'?'<ButtonPress event num=1 x=5 y=5>':String(v);
+    const bi=(name,fn)=>({kind:'bi',name,fn});
+    const newRoot=()=>({kind:'tk',o:{bg:'',title:'tk'},w:200,h:200,binds:{}});
+    const getRoot=()=>root||(root=newRoot());
+    const MB={kind:'mod'};
+    const B={print:bi('print',a=>{hooks.out(a.map(show).join(' '));return NONE}),str:bi('str',a=>show(a[0]??''))};
+    const TK={Button:bi('Button',(a,kw,n)=>widget('Button',a,kw,n)),Label:bi('Label',(a,kw,n)=>widget('Label',a,kw,n)),
+      Tk:bi('Tk',()=>{const r=newRoot();if(!root)root=r;return r}),mainloop:bi('mainloop',()=>NONE)};
+    function colorOK(c){if(typeof c!=='string'||!c.trim())return false;try{return CSS.supports('color',c.replace(/\s+/g,''))}catch(e){return true}}
+    const colorHint='Колір пишуть англійською в лапках: "yellow", "red", "green", "blue"…';
+    function setOpts(w,kw,n){for(const [k,v] of Object.entries(kw)){
+        if(!OPTS.has(k))throw new PyErr('_tkinter.TclError',`unknown option "-${k}"`,n,`У ${w.type} немає властивості ${k}. Перевір, як вона пишеться (text, bg, fg).`);
+        if(['bg','background','fg','foreground','activebackground'].includes(k)&&!colorOK(v))throw new PyErr('_tkinter.TclError',`unknown color name "${show(v)}"`,n,colorHint);
+        if(k==='command'&&v===NONE)hooks.note(`# рядок ${n}: command=…() з дужками — функція виконалась одразу, а кнопка нічого не робитиме. Пиши без дужок: command=clik1`);
+        if(k==='command'&&v!==NONE&&!(v&&(v.kind==='fn'||v.kind==='bi')))throw new PyErr('TypeError','command must be a function',n,'Після command= пишуть ім’я функції без лапок і без дужок: command=clik1');
+        w.o[k==='background'?'bg':k==='foreground'?'fg':k]=v}
+      hooks.render()}
+    function setItem(o,key,v,n){
+      if(o&&o.kind==='tk'){if(key==='bg'||key==='background'){if(!colorOK(v))throw new PyErr('_tkinter.TclError',`unknown color name "${show(v)}"`,n,v===''?'Між лапками порожньо: впиши назву кольору, наприклад "green".':colorHint);o.o.bg=v;hooks.render();return}
+        throw new PyErr('_tkinter.TclError',`unknown option "-${show(key)}"`,n,'Колір тла вікна змінюють так: window[\'bg\']="yellow"')}
+      if(o&&o.kind==='w'){setOpts(o,{[key]:v},n);return}
+      throw new PyErr('TypeError',`'${typeName(o)}' object does not support item assignment`,n,'Квадратні дужки пишуть після імені вікна: window[\'bg\']="red"')}
+    function widget(type,a,kw,n){if(a.length&&!(a[0]&&a[0].kind==='tk'))throw new PyErr('TypeError','first argument must be a window',n,`Спочатку пишуть вікно, потім властивості: ${type}(window, text='Yellow')`);
+      getRoot();const w={kind:'w',type,o:{},packed:false,placed:false,x:0,y:0,alive:true,id:++uid,binds:{}};W.push(w);setOpts(w,kw,n);return w}
+    function bindOn(o,a,n){
+      if(a.length<2)throw new PyErr('TypeError','bind() missing argument',n,"Пишуть так: knopka1.bind('<Button-1>', clik1)");
+      const seq=a[0],f=a[1];
+      if(typeof seq!=='string')throw new PyErr('TypeError','event sequence must be a string',n,"Подію пишуть у лапках: '<Button-1>'");
+      if(!SEQOK.test(seq))throw new PyErr('_tkinter.TclError',`bad event type or keysym "${seq.replace(/[<>]/g,'')}"`,n,"Натискання записують точно так: '<Button-1>' (велика B, дефіс, кутові дужки < >).");
+      if(!(f&&(f.kind==='fn'||f.kind==='bi')))throw new PyErr('TypeError',`bind() needs a function, not ${typeName(f)}`,n,'Другим у bind пишуть ім’я функції без лапок і без дужок: clik1');
+      o.binds[seq]=f;return 'bind'+(++uid)}
+    function method(o,m,a,kw,n){
+      if(o===MB){if(/^(show|ask)/.test(m)){hooks.msg(show(a[0]??''),show(a[1]??''),m);return m.startsWith('ask')?true:'ok'}
+        throw new PyErr('AttributeError',`module 'tkinter.messagebox' has no attribute '${m}'`,n,'Є, наприклад, messagebox.showinfo(\'Заголовок\', \'Текст\').')}
+      if(o&&o.kind==='w'){
+        if(!o.alive&&m!=='destroy')throw new PyErr('_tkinter.TclError','bad window path name',n,'Цю кнопку вже знищено.');
+        switch(m){
+          case'pack':o.packed=true;o.placed=false;o.ord=++uid;hooks.render();return NONE;
+          case'place':{if(a.length)throw new PyErr('TypeError','place() takes keyword arguments',n,'Координати пишуть з іменами: place(x=70, y=10)');
+            for(const [k,v] of Object.entries(kw)){
+              if(!['x','y','width','height'].includes(k))throw new PyErr('_tkinter.TclError',`unknown option "-${k}"`,n,'У place() пишуть x=… та y=…, наприклад place(x=70, y=10).');
+              const num=typeof v==='number'?v:(typeof v==='string'&&/^\s*-?\d+(\.\d+)?\s*$/.test(v)?+v:NaN);
+              if(isNaN(num))throw new PyErr('_tkinter.TclError',`bad screen distance "${show(v)}"`,n,'Координати — це числа: x=70, y=10.');
+              if(k==='x')o.x=num;else if(k==='y')o.y=num;else if(k==='width')o.pw=num;else o.ph=num}
+            o.placed=true;o.packed=false;o.ord=++uid;hooks.render();return NONE}
+          case'grid':throw new PyErr('Тренажер','grid() тут не підтримується',n,'У цьому проєкті кнопки розміщуємо методом place(x=…, y=…).');
+          case'bind':return bindOn(o,a,n);
+          case'pack_forget':case'place_forget':o.packed=o.placed=false;hooks.render();return NONE;
+          case'destroy':o.alive=false;o.packed=o.placed=false;hooks.render();return NONE;
+          case'config':case'configure':setOpts(o,kw,n);return NONE;
+          case'cget':return o.o[a[0]]??'';
+        }
+        const low=m.toLowerCase();
+        throw new PyErr('AttributeError',`'${o.type}' object has no attribute '${m}'`,n,low!==m&&['place','bind','pack','config'].includes(low)?`Python розрізняє великі й малі літери: пиши ${low}().`:'Такого методу в кнопки немає. Потрібні: place(x=…, y=…) і bind(\'<Button-1>\', функція).')}
+      if(o&&o.kind==='tk'){switch(m){
+          case'title':o.o.title=show(a[0]??'');hooks.render();return NONE;
+          case'geometry':{if(!a.length)return `${o.w}x${o.h}+0+0`;const g=show(a[0]),mm=g.match(/^\s*(\d+)x(\d+)(?:[+-]\d+[+-]\d+)?\s*$/);
+            if(!mm)throw new PyErr('_tkinter.TclError',`bad geometry specifier "${g}"`,n,/х/.test(g)?'Між числами має бути латинська x, а не українська х.':'Розмір пишуть так: \'300x300+150+50\' (без пробілів).');
+            o.w=Math.max(80,Math.min(1200,+mm[1]));o.h=Math.max(60,Math.min(1200,+mm[2]));hooks.render();return NONE}
+          case'mainloop':case'resizable':case'update':case'minsize':case'maxsize':case'destroy':return NONE;
+          case'config':case'configure':for(const [k,v] of Object.entries(kw))setItem(o,k,v,n);return NONE;
+          case'cget':return o.o.bg||'SystemButtonFace';
+          case'bind':return bindOn(o,a,n)}
+        const low=m.toLowerCase();
+        throw new PyErr('AttributeError',`'Tk' object has no attribute '${m}'`,n,low!==m&&['title','geometry','mainloop'].includes(low)?`Python розрізняє великі й малі літери: пиши ${low}().`:'У вікна є методи title(), geometry(), mainloop().')}
+      throw new PyErr('AttributeError',`'${typeName(o)}' object has no attribute '${m}'`,n,o===NONE?'Можливо, у змінну записано результат place(). Створюй кнопку і викликай place() окремими рядками.':'Такого методу тут немає.')}
+    function lookup(name,loc,n){if(loc&&loc.has(name))return loc.get(name);if(G.has(name))return G.get(name);if(name in B)return B[name];
+      let hint;
+      const near=['Button','Label','Tk'].find(x=>x.toLowerCase()===name.toLowerCase()&&x!==name);
+      if(name in TK)hint='Спочатку підключи модуль: from tkinter import *';
+      else if(name==='messagebox')hint='Підключи: from tkinter import messagebox';
+      else if(near)hint=`Python розрізняє великі й малі літери: пиши ${near}.`;
+      else if(['bg','background','text'].includes(name))hint=`Назву властивості пишуть у лапках: window['${name}']`;
+      else if(colorOK(name))hint=`Назву кольору беруть у лапки: "${name}"`;
+      else{const all=[...G.keys(),...(loc?loc.keys():[])];const s=all.find(x=>x.length>2&&lev(x,name)<=2);
+        hint=s?`Може, ти мав на увазі ${s}? Ім’я має бути написане однаково всюди.`:/[а-яіїєґ]/i.test(name)?'Якщо це текст, візьми його в лапки: \''+name+'\'':'Python не знає такого імені. Можливо, функцію чи кнопку ще не створено вище або є помилка в написанні.'}
+      throw new PyErr('NameError',`name '${name}' is not defined`,n,hint)}
+    function ev(e,loc,n){if(++steps>20000)throw new PyErr('Тренажер','програма виконується надто довго',n);
+      switch(e.k){
+        case'lit':return e.v;
+        case'name':return lookup(e.v,loc,n);
+        case'neg':{const v=ev(e.e,loc,n);if(typeof v!=='number')throw new PyErr('TypeError','bad operand type for unary -',n);return -v}
+        case'bin':{const l=ev(e.l,loc,n),r=ev(e.r,loc,n),op=e.op;
+          if(op==='+'&&typeof l==='string'&&typeof r==='string')return l+r;
+          if(typeof l!=='number'||typeof r!=='number')throw new PyErr('TypeError',`unsupported operand type(s) for ${op}: '${typeName(l)}' and '${typeName(r)}'`,n);
+          if((op==='/'||op==='//'||op==='%')&&r===0)throw new PyErr('ZeroDivisionError','division by zero',n);
+          return op==='+'?l+r:op==='-'?l-r:op==='*'?l*r:op==='/'?l/r:op==='//'?Math.floor(l/r):((l%r)+r)%r}
+        case'idx':{const o=ev(e.o,loc,n),k=ev(e.key,loc,n);
+          if(o&&o.kind==='tk')return (k==='bg'||k==='background')?(o.o.bg||'SystemButtonFace'):'';
+          if(o&&o.kind==='w')return o.o[k]??'';
+          throw new PyErr('TypeError',`'${typeName(o)}' object is not subscriptable`,n)}
+        case'attr':{const o=ev(e.o,loc,n);
+          if(o&&o.kind==='event'&&['x','y','widget','num','type'].includes(e.v))return o[e.v];
+          if(o&&o.kind==='w'&&e.v in o.o)return o.o[e.v];
+          throw new PyErr('Підказка','метод згадано без дужок',n,`Щоб викликати метод, потрібні дужки: …${e.v}()`)}
+        case'call':{const a=e.a.map(x=>ev(x,loc,n)),kw={};for(const k in e.kw)kw[k]=ev(e.kw[k],loc,n);
+          if(e.f.k==='attr')return method(ev(e.f.o,loc,n),e.f.v,a,kw,n);
+          return call(ev(e.f,loc,n),a,kw,n)}}}
+    function call(f,a,kw,n){
+      if(f&&f.kind==='bi')return f.fn(a,kw,n);
+      if(f&&f.kind==='fn'){const p=f.ps.length,ln=n||f.n;
+        if(a.length>p)throw new PyErr('TypeError',`${f.name}() takes ${p} positional argument${p===1?'':'s'} but ${a.length} ${a.length===1?'was':'were'} given`,ln,p===0?`Функції, яку викликає bind, Python передає подію. Допиши в дужках слово event: def ${f.name} (event):`:'Забагато значень у дужках.');
+        if(a.length<p)throw new PyErr('TypeError',`${f.name}() missing ${p-a.length} required positional argument: '${f.ps[a.length]}'`,ln,a.length===0?`Для command функцію пишуть з порожніми дужками: def ${f.name}():`:`Функцію в bind передають без дужок: …bind('<Button-1>', ${f.name})`);
+        if(Object.keys(kw).length)throw new PyErr('TypeError',`${f.name}() got an unexpected keyword argument`,ln);
+        if(++depth>60){depth=0;throw new PyErr('RecursionError','maximum recursion depth exceeded',ln)}
+        try{const loc=new Map();f.ps.forEach((x,i)=>loc.set(x,a[i]));run(f.b,loc);return NONE}finally{depth--}}
+      if(f&&(f.kind==='w'||f.kind==='tk'))throw new PyErr('TypeError',`'${typeName(f)}' object is not callable`,n,'Після імені кнопки чи вікна пишуть крапку й метод: knopka1.place(…)');
+      throw new PyErr('TypeError',`'${typeName(f)}' object is not callable`,n)}
+    function run(stmts,loc){for(const s of stmts){const n=s.n;
+        switch(s.k){
+          case'imp':if(s.w==='*'){for(const k in TK)G.set(k,TK[k])}else G.set('messagebox',MB);break;
+          case'def':(loc||G).set(s.name,{kind:'fn',name:s.name,ps:s.ps,b:s.b,n:s.n});break;
+          case'asg':(loc||G).set(s.v,ev(s.e,loc,n));break;
+          case'setitem':{const o=lookup(s.o,loc,n),k=ev(s.key,loc,n),v=ev(s.e,loc,n);setItem(o,k,v,n);break}
+          case'setattr':{const o=lookup(s.o,loc,n);ev(s.e,loc,n);if(o&&(o.kind==='w'||o.kind==='tk'))hooks.note(`# рядок ${n}: ${s.o}.${s.a} = … нічого не змінює. Пиши так: ${s.o}['${s.a}'] = …`);break}
+          case'expr':ev(s.e,loc,n);break}}
+      return null}
+    function click(w){let fired=false;
+      for(const [sq,f] of Object.entries(w.binds))if(CLICK.has(sq)){fired=true;call(f,[{kind:'event',x:5,y:5,num:1,widget:w,type:'ButtonPress'}],{},0)}
+      if(w.o.command&&w.o.command!==NONE){fired=true;call(w.o.command,[],{},0)}
+      return fired}
+    return{G,W,run,click,get root(){return root}}}
+  return{PyErr,parse,make}})();
+
+/* =========================================================
+   WINDOW (emulated)
+   ========================================================= */
+const FEATHER='<svg viewBox="0 0 16 16"><path d="M13 2C8 3 4 7 3 13l1 1c1-3 3-5 5-6-1 0-2 0-3 1 2-3 5-5 7-7z" fill="#5a8bd6"/></svg>';
+const MC=document.createElement('canvas').getContext('2d');
+function tw(t){MC.font='12px "Segoe UI",Tahoma,Arial,sans-serif';return Math.ceil(MC.measureText(t).width)}
+function norm(c){MC.fillStyle='#010203';MC.fillStyle=String(c).replace(/\s+/g,'');return MC.fillStyle}
+const txt=w=>{const t=w.o.text;return t==null?'':String(t)};
+const cssc=c=>String(c).replace(/\s+/g,'');
+function layout(rt){const R=rt.root,items=[];let py=0;
+  rt.W.filter(w=>w.alive&&(w.packed||w.placed)).sort((a,b)=>a.ord-b.ord).forEach(w=>{
+    const t=txt(w),btn=w.type==='Button';let ww=btn?tw(t)+18:tw(t)+6,hh=btn?26:21;
+    if(w.o.width&&!isNaN(+w.o.width))ww=(+w.o.width)*7+(btn?12:6);
+    if(w.pw)ww=w.pw;if(w.ph)hh=w.ph;
+    let x,y;if(w.placed){x=w.x;y=w.y}else{x=Math.round((R.w-ww)/2);y=py;py+=hh}
+    items.push({w,x,y,ww,hh})});
+  return{W:R.w,H:R.h,items}}
+function winHTML(rt,o){const R=rt&&rt.root,tb=t=>`<div class="tb">${FEATHER}<span class="tt">${esc(t)}</span><span class="wc">–□✕</span></div>`;
+  if(!R)return `<div class="win" style="width:${Math.min(300,o.w||300)}px">${tb('tk')}<div class="wempty">${o.empty||'Натисни «▶ Запустити»'}</div></div>`;
+  const L=layout(rt),s=Math.min(1,((o.w||300)-2)/L.W),bg=R.o.bg?esc(cssc(R.o.bg)):'#f0f0f0';
+  let grid='';if(o.grid){for(let x=50;x<L.W;x+=50)grid+=`<i class="gl" style="left:${x+2}px;top:1px">${x}</i>`;for(let y=50;y<L.H;y+=50)grid+=`<i class="gl" style="left:2px;top:${y+1}px">${y}</i>`}
+  return `<div class="win" style="width:${Math.round(L.W*s)+2}px">${tb(R.o.title)}
+   <div class="wv" style="height:${Math.round(L.H*s)}px"><div class="wbody${o.grid?' grid':''}" style="width:${L.W}px;height:${L.H}px;transform:scale(${s});background-color:${bg}">${grid}
+   ${L.items.map(i=>{const w=i.w,st=[`left:${i.x}px`,`top:${i.y}px`,`width:${i.ww}px`,`height:${i.hh}px`];
+      if(w.o.bg)st.push('background:'+cssc(w.o.bg));if(w.o.fg)st.push('color:'+cssc(w.o.fg));
+      return w.type==='Button'?`<button class="wb" data-id="${w.id}" style="${esc(st.join(';'))}">${esc(txt(w))}</button>`:`<span class="wl" style="${esc(st.join(';'))}">${esc(txt(w))}</span>`}).join('')}
+   </div>${o.msg?`<div class="wmsg"><div class="box"><div class="bt">${esc(o.msg.t)}</div><div class="bx">${/error/.test(o.msg.k)?'⛔':/warn/.test(o.msg.k)?'⚠️':'ℹ️'} ${esc(o.msg.x)}</div><div class="bf"><button>OK</button></div></div></div>`:''}</div></div>`}
+class Sim{
+  constructor(el,opt){this.el=el;this.opt=opt||{};this.rt=null;this.msg=null;this.lines=[]}
+  run(src){this.msg=null;this.lines=[];this.err=null;this.rt=null;
+    const H={out:t=>this.log(t),render(){},note:t=>this.log(t,'c'),msg:(t,x,k)=>{this.msg={t,x,k}}};
+    this.log('>>> програму запущено','c');
+    let rt=null;try{const p=PY.parse(src);rt=PY.make(H);this.rt=rt;rt.run(p,null);if(!rt.root)this.log('# вікна немає: бракує рядка window = Tk()','c')}catch(e){this.fail(e)}
+    this.draw()}
+  log(t,c){this.lines.push([t,c]);if(this.lines.length>60)this.lines.shift();const el=this.opt.con&&$(this.opt.con);
+    if(el){el.innerHTML=this.lines.map(([t,c])=>`<div${c?` class="${c}"`:''}>${esc(t)}</div>`).join('');el.scrollTop=1e6}}
+  fail(e){if(!(e instanceof PY.PyErr))e=new PY.PyErr('Помилка',String(e&&e.message||e),0);this.err=e;this.log(`${e.line?'Рядок '+e.line+': ':''}${e.type}: ${e.message}`,'e');this.opt.onErr&&this.opt.onErr(e)}
+  click(id){const w=this.rt.W.find(x=>x.id===id);if(!w)return;const R=this.rt.root,before=R.o.bg;
+    try{const f=this.rt.click(w);
+      if(!f)this.log(`# «${txt(w).trim()}» нічого не робить: кнопку не пов’язано з функцією (бракує command=…)`,'c');
+      else this.log(`натиснуто «${txt(w).trim()}» → ${R.o.bg!==before?"window['bg'] = "+R.o.bg:'колір не змінився'}`,'m')}
+    catch(e){this.fail(e)}
+    this.draw();this.opt.onClick&&this.opt.onClick(w)}
+  draw(){const el=$(this.el);if(!el)return;el.innerHTML=winHTML(this.rt,{w:el.clientWidth,msg:this.msg,grid:this.opt.grid,empty:this.opt.empty});
+    el.querySelectorAll('.wb').forEach(b=>b.onclick=()=>this.click(+b.dataset.id));
+    const ok=el.querySelector('.wmsg button');if(ok)ok.onclick=()=>{this.msg=null;this.draw()}}}
+
+const COLORS=[['yellow','Yellow'],['red','Red'],['green','Зелене'],['blue','Синє'],['lightblue','Блакитне'],['orange','Помаранчеве'],['pink','Рожеве'],['purple','Фіолетове'],['lime','Салатове'],['gray','Сіре'],['brown','Коричневе'],['white','Біле']];
+
+/* ---------- tabs ---------- */
+const tabs=[...document.querySelectorAll('.tab')];
+function openTab(t){tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);$(x.getAttribute('aria-controls')).hidden=!on});window.scrollTo(0,0);ls.set('tab',t.id);
+  if(t.id==='t-th')drawSl();if(t.id==='t-pr')drawPr();if(t.id==='t-sd')drawSd()}
+tabs.forEach(t=>t.addEventListener('click',()=>openTab(t)));
+document.addEventListener('focusin',e=>{if(e.target.matches('textarea,input'))document.body.classList.add('typing')});
+document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!document.activeElement.matches('textarea,input'))document.body.classList.remove('typing')},50));
+
+/* =========================================================
+   1. EXPLANATION
+   ========================================================= */
+const TH={x:70,y:10,c:'green'};
+/* Each slide shows the whole program so far; ⟪…⟫ marks what is new on this slide. */
+const UK=()=>TH.c[0].toUpperCase()+TH.c.slice(1);
+const HEAD=`from tkinter import *\n\n`;
+const WIN=`window = Tk()\nwindow.title('Кольорова англійська')\nwindow.geometry('300x300+150+50')\n\n`;
+const F1=`def clik1():\n    window['bg'] = "yellow"\n\n`, F2=`def clik2():\n    window['bg'] = "red"\n\n`, F3=()=>`def clik3():\n    window['bg'] = "${TH.c}"\n\n`;
+const K1=`knopka1 = Button(window, text='Yellow', command=clik1)\nknopka1.place(x=70, y=10)\n\n`;
+const K2=`knopka2 = Button(window, text='Red', command=clik2)\nknopka2.place(x=170, y=10)\n\n`;
+const K3=()=>`knopka3 = Button(window, text='${UK()}', command=clik3)\nknopka3.place(x=70, y=50)\n\n`;
+const END=`window.mainloop()`;
+const nw=t=>'⟪'+t.replace(/\n+$/,'')+'⟫'+t.match(/\n*$/)[0];
+const SLIDES=[
+ {h:'1. Вікно програми',
+  p:'Кожна програма з кнопками починається з вікна. Вікно — це об’єкт, у нього є властивості: заголовок, розмір, колір.',
+  code:()=>nw(HEAD+WIN+END),
+  notes:[['from tkinter import *','підключає модуль для вікон і кнопок'],['window = Tk()','створює вікно й називає його window'],['title(…)','напис угорі вікна'],["geometry('300x300+150+50')",'ширина 300 і висота 300; +150 і +50 — де вікно з’явиться на екрані'],['mainloop()','тримає вікно відкритим і чекає натискань (завжди останній рядок)']]},
+ {h:'2. Кнопка і її місце',
+  p:'Додаємо кнопку у вікно й ставимо її в точку з координатами x і y. Відлік іде від лівого верхнього кута вікна.',
+  code:()=>HEAD+WIN+nw(`knopka1 = Button(window, text='Yellow')\nknopka1.place(x=${TH.x}, y=${TH.y})\n\n`)+END,
+  notes:[["Button(window, text='Yellow')",'створює кнопку у вікні window з написом «Yellow» (англійська назва кольору)'],['place(x=…, y=…)','x — скільки пікселів від лівого краю, y — від верхнього (вниз)']],
+  grid:true,
+  extra:()=>`<div class="ctl"><button class="btn sm" data-d="x,-20">← x</button><button class="btn sm" data-d="x,20">x →</button><button class="btn sm" data-d="y,-20">↑ y</button><button class="btn sm" data-d="y,20">y ↓</button></div><p class="try">Посувай кнопку: x = ${TH.x}, y = ${TH.y}</p>`,
+  on:()=>document.querySelectorAll('#slide [data-d]').forEach(b=>b.onclick=()=>{const [k,d]=b.dataset.d.split(',');TH[k]=Math.max(0,Math.min(k==='x'?240:270,TH[k]+ +d));drawSl()})},
+ {h:'3. Функція: що зробить кнопка',
+  p:'Функція — це «інструкція» для кнопки. Її пишуть угорі програми. Ця функція фарбує тло вікна в жовтий колір.',
+  code:()=>HEAD+nw(F1)+WIN+`knopka1 = Button(window, text='Yellow')\nknopka1.place(x=70, y=10)\n\n`+END,
+  notes:[['def clik1():','назва функції, дужки порожні, в кінці двокрапка'],["window['bg']",'властивість «колір тла» вікна (bg = background)'],['"yellow"','колір пишемо англійською і в лапках'],['4 пробіли','рядок усередині функції пишемо з відступом']],
+  tryit:'Натисни «Yellow». Нічого? Бо кнопку ще не з’єднано з функцією'},
+ {h:'4. command: з’єднати кнопку з функцією',
+  p:'Дописуємо в кнопку command=clik1. Тепер після натискання виконується функція clik1.',
+  code:()=>HEAD+F1+WIN+`knopka1 = Button(window, text='Yellow'⟪, command=clik1⟫)\nknopka1.place(x=70, y=10)\n\n`+END,
+  notes:[['command=clik1','після натискання виконується функція clik1'],['clik1','ім’я функції пишуть без дужок, інакше кнопка не працюватиме']],
+  tryit:'Натисни «Yellow» тепер'},
+ {h:'5. Друга кнопка',
+  p:'Друга кнопка — це ще одна функція і ще одна кнопка. Змінюємо номер, колір, напис і місце.',
+  code:()=>HEAD+F1+nw(F2)+WIN+K1+nw(K2)+END,
+  notes:[['clik2, knopka2','нові номери, щоб імена не повторювались'],['"red"','червоний колір; на кнопці теж англійською: Red'],['x=170','інше місце, щоб кнопки не накладались']],
+  tryit:'Натискай кнопки по черзі'},
+ {h:'6. Ще кнопки — свої кольори',
+  p:'Так само додаємо третю кнопку. У готовому проєкті має бути 5 кнопок — 5 кольорів. Вибери колір під вікном — програма зміниться.',
+  code:()=>HEAD+F1+F2+nw(F3())+WIN+K1+K2+nw(K3())+END,
+  notes:[['clik3, knopka3','нові номери (і в command теж clik3)'],['"колір" і напис','колір англійською, і такий самий напис на кнопці'],['x, y','нове місце: тут y=50, тобто рядком нижче']],
+  extra:()=>`<div class="ctl">${COLORS.slice(2).map(([c,u])=>`<button class="sw" title="${u}" style="background:${c}" data-c="${c}" aria-pressed="${c===TH.c}"></button>`).join('')}</div><p class="try">Вибери колір для 3-ї кнопки</p>`,
+  on:()=>document.querySelectorAll('#slide [data-c]').forEach(b=>b.onclick=()=>{TH.c=b.dataset.c;drawSl()})}
+];
+const TIPS={import:'from tkinter import * — підключає модуль tkinter для вікон і кнопок',Tk:'Tk() — створює вікно програми',title:'title(…) — напис угорі вікна',geometry:'geometry(…) — розмір вікна (ширина x висота) і де воно з’явиться',mainloop:'mainloop() — тримає вікно відкритим і чекає натискань',Button:'Button(window, text=…) — створює кнопку у вікні з написом',place:'place(x=…, y=…) — ставить кнопку: x від лівого краю, y від верхнього',def:'def — опис функції: що зробить кнопка',bg:"window['bg'] — колір тла вікна",command:'command=… — яку функцію виконати після натискання (ім’я без дужок)',text:'text=… — напис на кнопці',window:'window — ім’я нашого вікна'};
+function hlTip(s,seen){return hl(s).replace(/(<span class="(?:kw|bi|st)">)?\b(import|Tk|title|geometry|mainloop|Button|place|def|command|text)\b(<\/span>)?|'bg'/g,(m,o,w,c)=>{const k=w||'bg';if(seen.has(k))return m;seen.add(k);return `<span class="tip" tabindex="0" data-tip="${esc(TIPS[k])}">${m}</span>`})}
+function hlNew(src){const seen=new Set();return src.split(/⟪|⟫/).map((part,i)=>i%2?`<span class="new">${hl(part)}</span>`:hlTip(part,seen)).join('')}
+(()=>{const box=document.createElement('div');box.className='tipbox';document.body.appendChild(box);let cur=null;
+  const show=el=>{cur=el;box.textContent=el.dataset.tip;box.style.display='block';const r=el.getBoundingClientRect(),bw=box.offsetWidth;
+    box.style.left=Math.max(8,Math.min(window.innerWidth-bw-8,r.left))+'px';box.style.top=(r.bottom+6)+'px'};
+  const hide=()=>{cur=null;box.style.display='none'};
+  document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('.tip');if(t)show(t);else if(cur&&e.pointerType!=='touch')hide()});
+  document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('.tip');if(t)show(t);else hide()});
+  window.addEventListener('scroll',hide,{passive:true})})();
+let SL={i:0,seen:new Set()};
+const thSim=new Sim('thWin',{empty:''});
+function drawSl(){const S=SLIDES[SL.i];SL.seen.add(SL.i);
+  $('slDots').innerHTML=SLIDES.map((_,i)=>`<button class="${i===SL.i?'cur':SL.seen.has(i)?'seen':''}" data-i="${i}">${i+1}</button>`).join('');
+  $('slDots').querySelectorAll('button').forEach(b=>b.onclick=()=>{SL.i=+b.dataset.i;drawSl()});
+  const src=S.code(),code=hlNew(src);
+  $('slide').innerHTML=`<div class="slide"><div><h3>${S.h}</h3><p>${S.p}</p><pre class="code">${code}</pre>
+    <ul class="note">${S.notes.map(([c,t])=>`<li><code>${esc(c)}</code> — ${t}</li>`).join('')}</ul></div>
+    <div><div class="winbox" id="thWin"></div>${S.tryit?`<p class="try">👆 ${S.tryit}</p>`:''}${S.extra?S.extra():''}</div></div>`;
+  thSim.opt.grid=!!S.grid;thSim.run(src.replace(/[⟪⟫]/g,''));
+  if(S.on)S.on();
+  $('slPrev').disabled=SL.i===0;$('slNext').textContent=SL.i===SLIDES.length-1?'До проєкту →':'Далі →'}
+$('slPrev').onclick=()=>{if(SL.i>0){SL.i--;drawSl();$('p-th').scrollIntoView({block:'start'})}};
+$('slNext').onclick=()=>{if(SL.i<SLIDES.length-1){SL.i++;drawSl();$('p-th').scrollIntoView({block:'start'})}else openTab($('t-pr'))};
+
+/* =========================================================
+   2. PROJECT
+   ========================================================= */
+const FULL=`from tkinter import *
+
+# функція кнопки
+def clik1():
+    window['bg']="yellow"
+
+# функція кнопки
+def clik2():
+    window['bg']="red"
+
+# створює вікно
+window = Tk()
+window.title('Кольорова англійська')
+window.geometry('300x300+150+50')
+
+# створює кнопку і пов'язує її з функцією
+knopka1=Button(window, text='Yellow', command=clik1)
+# розташовує кнопку
+knopka1.place(x=70, y=10)
+
+# створює кнопку і пов'язує її з функцією
+knopka2=Button(window, text='Red', command=clik2)
+# розташовує кнопку
+knopka2.place(x=170, y=10)
+`;
+const BLANKS=`from tkinter import *
+
+# функція кнопки
+def clik1():
+    window['bg']="⟦yellow⟧"
+
+# функція кнопки
+def clik2():
+    window['bg']="⟦red⟧"
+
+# створює вікно
+window = ⟦Tk⟧()
+window.⟦title⟧('Кольорова англійська')
+window.⟦geometry⟧('300x300+150+50')
+
+# створює кнопку і пов'язує її з функцією
+knopka1=⟦Button⟧(window, text='Yellow', ⟦command⟧=clik1)
+# розташовує кнопку
+knopka1.⟦place⟧(x=70, y=10)
+
+# створює кнопку і пов'язує її з функцією
+knopka2=Button(window, text='Red', command=⟦clik2⟧)
+# розташовує кнопку
+knopka2.place(x=170, y=10)
+
+window.⟦mainloop⟧()`;
+const BPARTS=BLANKS.split(/⟦([^⟧]*)⟧/);
+const BANS=BPARTS.filter((_,i)=>i%2);
+const BANK=shuffle([...new Set(BANS),'pack','жовтий','червоний','bind','print','Label']);
+const T2=`from tkinter import *
+
+# функція кнопки
+def clik1():
+    window['bg']="yellow"
+
+# ДОПИШИ ТУТ функцію clik2 (вікно стає червоним)
+
+
+# створює вікно
+window = Tk()
+window.title('Кольорова англійська')
+window.geometry('300x300+150+50')
+
+# створює кнопку і пов'язує її з функцією
+knopka1=Button(window, text='Yellow', command=clik1)
+# розташовує кнопку
+knopka1.place(x=70, y=10)
+
+# ДОПИШИ ТУТ кнопку knopka2 «Red» (x=170, y=10)
+
+
+window.mainloop()
+`;
+const T3=FULL+`
+# ДОДАЙ ТУТ свої кнопки інших кольорів
+
+
+window.mainloop()
+`;
+const btnBy=(r,re)=>r.btns.find(b=>re.test(b.text));
+const works=(b,c)=>!!b&&!b.err&&b.col===norm(c);
+const inside=(r,b)=>b.x>=0&&b.y>=0&&b.x+b.w<=r.W&&b.y+b.h<=r.H;
+const cross=(a,b)=>a.x<b.x+b.w-1&&b.x<a.x+a.w-1&&a.y<b.y+b.h-1&&b.y<a.y+a.h-1;
+const noOverlap=bs=>bs.every((a,i)=>bs.every((b,j)=>j<=i||!cross(a,b)));
+const nCols=r=>new Set(r.btns.filter(b=>!b.err&&b.col).map(b=>b.col)).size;
+const PRT=[
+ {t:'Заповни пропуски',max:3,d:'Це вся програма, але в ній 10 пропусків. Натисни на пропуск, потім на потрібне слово внизу. Коли все заповниш, натисни «Перевірити».',blanks:true},
+ {t:'Друга кнопка',max:3,d:'Тут є лише кнопка «Yellow». Допиши функцію clik2 і кнопку «Red» в місцях з написом ДОПИШИ. Кнопки «+ функція» і «+ кнопка» вставляють заготовку.',start:T2,
+  req:[['Є кнопка з написом «Red»',r=>!!btnBy(r,/^red$/i)],['«Red» фарбує вікно в червоний (red)',r=>works(btnBy(r,/^red$/i),'red')],['«Yellow» працює, кнопки не накладаються',r=>works(btnBy(r,/^yellow$/i),'yellow')&&r.btns.every(b=>inside(r,b))&&noOverlap(r.btns)]]},
+ {t:'Більше кольорів',max:6,d:'Додай ще 3 кнопки інших кольорів, щоб разом було 5 кольорів. На кнопці пиши англійську назву кольору: Green, Blue… Пиши перед рядком window.mainloop().',start:T3,
+  req:[['3-тя кнопка свого кольору працює',r=>!r.err&&nCols(r)>=3],['4-та кнопка ще іншого кольору',r=>!r.err&&nCols(r)>=4],['5-та кнопка ще іншого кольору (разом 5 кольорів)',r=>!r.err&&nCols(r)>=5],['Напис на кожній кнопці — англійська назва її кольору',r=>!r.err&&r.btns.length>=3&&r.btns.every(b=>b.col&&norm(b.text)===b.col)],['Усі кнопки у вікні',r=>!r.err&&r.btns.length>=3&&r.btns.every(b=>inside(r,b))],['Кнопки не накладаються',r=>!r.err&&r.btns.length>=3&&noOverlap(r.btns)]]}
+];
+function analyze(src){const r={err:null,btns:[],W:300,H:300};
+  const H={out(){},render(){},note(){},msg(){}};let rt;
+  try{rt=PY.make(H);rt.run(PY.parse(src),null)}catch(e){r.err=e;return r}
+  if(!rt.root){r.err=new PY.PyErr('Тренажер','вікно не створено',0,'Створи вікно: window = Tk()');return r}
+  r.W=rt.root.w;r.H=rt.root.h;const base=rt.root.o.bg;
+  r.btns=layout(rt).items.filter(i=>i.w.type==='Button').map(i=>{rt.root.o.bg=base;let bg=null,err=null,fired=false;
+    try{fired=rt.click(i.w);if(rt.root.o.bg!==base)bg=rt.root.o.bg}catch(e){err=e}
+    return{text:txt(i.w).trim(),x:i.x,y:i.y,w:i.ww,h:i.hh,col:bg?norm(bg):null,err,fired}});
+  return r}
+function diag(r){const out=[];if(r.err)return out;const bs=r.btns;
+  bs.forEach(b=>{const nm=b.text?`«${b.text}»`:'без напису';
+    if(b.err)out.push(`Кнопка ${nm}: помилка після натискання — ${b.err.message}. ${b.err.hint||''}`);
+    else if(!b.fired)out.push(`Кнопка ${nm} нічого не робить: допиши command=ім’я_функції (без дужок).`);
+    else if(!b.col)out.push(`Кнопка ${nm} не змінює колір вікна.`);
+    if(!b.text)out.push('Є кнопка без напису: допиши text=\'…\'.');
+    else if(b.col&&norm(b.text)!==b.col)out.push(`Напис ${nm} не збігається з кольором: на кнопці має бути англійська назва кольору, яким вона фарбує.`);
+    if(!inside(r,b))out.push(`Кнопка ${nm} вилазить за межі вікна ${r.W}×${r.H}: зменш x або y.`)});
+  bs.forEach((a,i)=>bs.forEach((b,j)=>{if(j>i&&cross(a,b))out.push(`Кнопки «${a.text}» і «${b.text}» накладаються: зміни x або y.`);
+    if(j>i&&a.col&&a.col===b.col)out.push(`Кнопки «${a.text}» і «${b.text}» дають однаковий колір.`)}));
+  return [...new Set(out)]}
+
+let PR={i:+(ls.get('pri')||0),
+  bl:JSON.parse(ls.get('bl')||'null')||BANS.map(()=>''),
+  code:JSON.parse(ls.get('code')||'null')||[null,T2,T3],
+  best:JSON.parse(ls.get('best')||'null')||[0,0,0],
+  last:[null,null,null],sel:0,errLine:0};
+const prSave=()=>{ls.set('bl',JSON.stringify(PR.bl));ls.set('code',JSON.stringify(PR.code));ls.set('best',JSON.stringify(PR.best));ls.set('pri',PR.i)};
+const blankCode=()=>BPARTS.map((p,i)=>i%2?(PR.bl[(i-1)/2]||'___'):p).join('');
+const srcOf=i=>i===0?blankCode():PR.code[i];
+const sim=new Sim('prWin',{con:'prCon',onErr:e=>showErr(e)});
+
+function showErr(e){const box=$('prErr');if(!box)return;const src=srcOf(PR.i).split('\n');const line=e.line?src[e.line-1]:'';
+  box.innerHTML=`<div class="err"><span class="et">${e.line?`Рядок ${e.line}: `:''}${esc(e.type)}: ${esc(e.message)}</span>${line&&PR.i>0?`<span class="ln">${esc(line.trim())}</span>`:''}${e.hint?`<div>💡 ${esc(e.hint)}</div>`:''}</div>`;
+  PR.errLine=e.line||0;gut()}
+function gut(){const g=$('prGut');if(!g)return;const n=PR.code[PR.i].split('\n').length;let s='';for(let i=1;i<=n;i++)s+=(i===PR.errLine?`<span class="el">${i}</span>`:i)+'\n';g.innerHTML=s;g.scrollTop=$('prEd').scrollTop}
+function prRun(scroll){$('prErr').innerHTML='';PR.errLine=0;gut();sim.run(srcOf(PR.i));if(scroll&&isPhone())$('prWin').scrollIntoView({behavior:'smooth',block:'center'})}
+
+function drawPr(){const t=PRT[PR.i],last=PR.last[PR.i];
+  $('prPills').innerHTML=PRT.map((x,i)=>`<button data-i="${i}" aria-pressed="${i===PR.i}" class="${PR.best[i]===x.max?'done':''}">${i+1}. ${x.t} <span class="ck">${PR.best[i]}/${x.max}</span></button>`).join('');
+  $('prPills').querySelectorAll('button').forEach(b=>b.onclick=()=>{PR.i=+b.dataset.i;prSave();drawPr()});
+  const left=t.blanks?`<pre class="code" id="blCode"></pre><div class="bank" id="bank"><span class="lbl">Слова (натисни на пропуск, потім на слово):</span>${BANK.map(w=>`<button data-w="${esc(w)}">${esc(w)}</button>`).join('')}<button data-w="">⌫</button></div>`
+   :`<div class="edwrap"><div class="gut" id="prGut"></div><textarea class="ed" id="prEd" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Код програми"></textarea></div>
+     <div class="keys" id="keys">${['←','→','⇥','(',')','[',']',"'",'"','=',':',',','.','_','<','>'].map(k=>`<button data-k="${esc(k)}">${esc(k)}</button>`).join('')}
+       <button class="sn" data-s="fn">+ функція</button><button class="sn" data-s="btn">+ кнопка</button>
+       ${COLORS.map(([c,u])=>`<button class="sw" title="${u}: ${c}" style="background:${c}" data-c="${c}"></button>`).join('')}</div>`;
+  $('prBox').innerHTML=`<p class="task"><b>Крок ${PR.i+1}. ${t.t}.</b> ${esc(t.d)}</p>
+   <div class="lab"><div>${left}
+     <div class="row-btns"><button class="btn" id="runB">▶ Запустити</button><button class="btn main" id="chkB">✔ Перевірити</button><button class="btn sm" id="rstB">↺ Почати заново</button></div>
+     <div id="prErr"></div></div>
+   <div><div class="winbox" id="prWin"></div><div class="console" id="prCon" aria-live="polite"></div>
+     ${t.req?`<ul class="reqs">${t.req.map(([q],j)=>`<li class="${last?last.res[j]?'y':'n':'u'}">${esc(q)}</li>`).join('')}</ul>`:''}
+     <div id="prFb"></div></div></div>`;
+  if(t.blanks)drawBlanks();else setupEd();
+  $('runB').onclick=()=>prRun(true);
+  $('chkB').onclick=check;
+  $('rstB').onclick=()=>{if(!confirm('Почати цей крок заново? Твої зміни зникнуть.'))return;if(t.blanks)PR.bl=BANS.map(()=>'');else PR.code[PR.i]=t.start;PR.last[PR.i]=null;prSave();drawPr()};
+  prRun(false)}
+
+function drawBlanks(){let k=0;
+  $('blCode').innerHTML=BPARTS.map((p,i)=>{if(i%2===0)return hl(p);const j=k++,v=PR.bl[j],m=PR.last[0]&&PR.last[0].marks?PR.last[0].marks[j]:null;
+    return `<button class="blank${j===PR.sel?' sel':''}${m===true?' ok':m===false?' no':''}" data-j="${j}" style="min-width:${Math.max(4,BANS[j].length)+1}ch">${v?esc(v):'&nbsp;'}</button>`}).join('');
+  $('blCode').querySelectorAll('.blank').forEach(b=>b.onclick=()=>{PR.sel=+b.dataset.j;drawBlanks()});
+  $('bank').querySelectorAll('button').forEach(b=>b.onclick=()=>{PR.bl[PR.sel]=b.dataset.w;if(PR.last[0])PR.last[0].marks[PR.sel]=null;
+    if(b.dataset.w){const nx=PR.bl.findIndex((v,i)=>i>PR.sel&&!v);const nx2=nx>=0?nx:PR.bl.findIndex(v=>!v);if(nx2>=0)PR.sel=nx2}
+    prSave();drawBlanks()})}
+
+function snip(kind,src){const mx=re=>{let m,x=0;const r=new RegExp(re,'g');while((m=r.exec(src)))x=Math.max(x,+m[1]);return x};
+  if(kind==='fn'){const k=mx('def\\s+clik(\\d+)')+1;return{t:`# функція кнопки\ndef clik${k}():\n    window['bg']=""\n`,cur:`window['bg']="`}}
+  const k=mx('knopka(\\d+)\\s*=')+1,i=k-1,x=i%2?170:70,y=10+40*Math.floor(i/2);
+  return{t:`# створює кнопку і пов'язує її з функцією\nknopka${k}=Button(window, text='', command=clik${k})\nknopka${k}.place(x=${x}, y=${y})\n`,cur:`text='`}}
+function setupEd(){const ta=$('prEd');ta.value=PR.code[PR.i];
+  const save=()=>{PR.code[PR.i]=ta.value;PR.errLine=0;prSave();gut()};
+  ta.oninput=e=>{if(e.inputType==='insertLineBreak'&&!ta._k){const before=ta.value.slice(0,ta.selectionStart-1).split('\n').pop();let ind=before.match(/^ */)[0];if(/:\s*$/.test(before))ind+='    ';if(ind)ta.setRangeText(ind,ta.selectionStart,ta.selectionStart,'end')}ta._k=false;save()};
+  ta.onscroll=()=>{$('prGut').scrollTop=ta.scrollTop};
+  const ins=(t,curAfter)=>{const s=ta.selectionStart,e=ta.selectionEnd;ta.setRangeText(t,s,e,'end');
+    if(curAfter!==undefined){const p=s+curAfter;ta.setSelectionRange(p,p)}save()};
+  ta.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();ins('    ')}else if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();ta._k=true;const cur=ta.value.slice(0,ta.selectionStart).split('\n').pop();let ind=cur.match(/^ */)[0];if(/:\s*$/.test(cur))ind+='    ';ins('\n'+ind)}};
+  const act=b=>{const k=b.dataset.k,s=b.dataset.s,c=b.dataset.c;
+    if(k==='←'||k==='→'){const p=Math.max(0,ta.selectionStart+(k==='←'?-1:1));ta.setSelectionRange(p,p);return}
+    if(k){ins(k==='⇥'?'    ':k);return}
+    if(c){const v=ta.value,p=ta.selectionStart,inQ=/["']$/.test(v.slice(0,p))&&/^["']/.test(v.slice(ta.selectionEnd));ins(inQ?c:`"${c}"`);return}
+    if(s){const sn=snip(s,ta.value);const p=ta.selectionStart,lineStart=ta.value.lastIndexOf('\n',p-1)+1,pre=p>lineStart?'\n':'';
+      ins(pre+sn.t,pre.length+sn.t.indexOf(sn.cur)+sn.cur.length)}};
+  $('keys').querySelectorAll('button').forEach(b=>{let moved=false;
+    b.addEventListener('mousedown',e=>e.preventDefault());
+    b.addEventListener('touchstart',()=>{moved=false},{passive:true});
+    b.addEventListener('touchmove',()=>{moved=true},{passive:true});
+    b.addEventListener('touchend',e=>{e.preventDefault();if(!moved)act(b)});
+    b.addEventListener('click',()=>act(b))});
+  gut()}
+
+function check(){const t=PRT[PR.i];prRun(true);let pts,html;
+  if(t.blanks){const marks=PR.bl.map((v,i)=>v===BANS[i]),c=marks.filter(Boolean).length,n=BANS.length;
+    pts=c===n?3:c>=n-3?2:c>=4?1:0;PR.last[0]={marks};drawBlanks();
+    html=c===n?`<div class="fb ok"><span class="ttl">Усі ${n} пропусків правильно: 3 бали!</span>Понатискай кнопки у вікні, а потім переходь до кроку 2.<div class="row-btns"><button class="btn main sm" id="nextB">Крок 2 →</button></div></div>`
+      :`<div class="fb ${pts?'info':'no'}"><span class="ttl">Правильно ${c} з ${n}: ${pts} з 3 балів.</span>Червоні пропуски виправ і перевір ще раз.</div>`}
+  else{const src=PR.code[PR.i],r=analyze(src),res=t.req.map(([_,f])=>{try{return!!f(r)}catch(e){return false}});pts=res.filter(Boolean).length;PR.last[PR.i]={res};
+    document.querySelectorAll('#prBox .reqs li').forEach((li,j)=>li.className=res[j]?'y':'n');
+    if(r.err)showErr(r.err);
+    const d=diag(r);
+    html=pts===t.max?`<div class="fb ok"><span class="ttl">Крок виконано: ${t.max} ${t.max<5?"бали":"балів"}!</span>${PR.i<2?'<div class="row-btns"><button class="btn main sm" id="nextB">Крок '+(PR.i+2)+' →</button></div>':'Тепер відкрий вкладку «Результат».<div class="row-btns"><button class="btn main sm" id="toSd">До результату →</button></div>'}</div>`
+      :`<div class="fb ${pts?'info':'no'}"><span class="ttl">${pts} з ${t.max} балів.</span>${r.err?'Спочатку виправ помилку (червона рамка зліва).':d.length?'<ul>'+d.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>':'Виправ вимоги з позначкою ✗ і перевір ще раз.'}</div>`}
+  if(pts>PR.best[PR.i]){PR.best[PR.i]=pts;prSave()}
+  const pill=$('prPills').querySelectorAll('button')[PR.i];pill.querySelector('.ck').textContent=PR.best[PR.i]+'/'+t.max;pill.classList.toggle('done',PR.best[PR.i]===t.max);
+  $('prFb').innerHTML=html;
+  if($('nextB'))$('nextB').onclick=()=>{PR.i++;if(PR.i===2&&PR.code[2]===T3&&PR.best[1]===3)PR.code[2]=PR.code[1].replace(/\n*window\.mainloop\(\)\s*$/,'')+'\n\n# ДОДАЙ ТУТ свої кнопки інших кольорів\n\n\nwindow.mainloop()\n';prSave();drawPr();window.scrollTo(0,0)};
+  if($('toSd'))$('toSd').onclick=()=>openTab($('t-sd'));
+  if(isPhone())$('prFb').scrollIntoView({behavior:'smooth',block:'center'})}
+
+/* =========================================================
+   3. RESULT CARD (for a screenshot)
+   ========================================================= */
+const sdSim=new Sim('sdWin',{});
+function finalIdx(){return PR.best[2]>0?2:PR.best[1]>0?1:0}
+function drawSd(){const s=PR.best.reduce((a,b)=>a+b,0),g=Math.max(1,s),fi=finalIdx(),d=new Date();
+  $('sdBox').innerHTML=`<div class="namebox"><label>Прізвище та ім’я<input id="sdName" autocomplete="name" placeholder="Наприклад, Коваленко Марія" value="${esc(ls.get('name')||'')}"></label><label>Клас<input id="sdClass" placeholder="8-А" value="${esc(ls.get('class')||'')}"></label></div>
+   <div class="card" id="card">
+     <div class="cardhd"><div><b id="cName">${esc(ls.get('name')||'Впиши ім’я вгорі')}</b><span id="cClass">${esc(ls.get('class')||'')}</span><small>Кольорова англійська (tkinter) · ${d.toLocaleDateString('uk-UA')}</small></div><div class="grade">${g}<small>з 12</small></div></div>
+     <table class="prtable">${PRT.map((t,i)=>`<tr><td>${i+1}. ${esc(t.t)}</td><td>${PR.best[i]} / ${t.max}</td></tr>`).join('')}</table>
+     <div class="cardbody"><div class="winbox" id="sdWin"></div><pre class="code small">${hl(srcOf(fi).split('\n').filter(l=>l.trim()&&!/^\s*#/.test(l)).join('\n'))}</pre></div>
+   </div>
+   <p class="scale">📸 Зроби скріншот цієї картки (можна натиснути кнопку у вікні, щоб воно стало кольоровим) і натисни «Надіслати вчителю».${s<12?' Хочеш вищу оцінку? Повернись у «Проєкт» і доробити кроки, де бали неповні.':''}</p>
+   <div class="row-btns"><button class="btn main" id="sdSend">📨 Надіслати вчителю</button><button class="btn sm" id="sdCopy">📋 Копіювати код для Python</button></div><div id="sdSt"></div>`;
+  $('sdSend').onclick=submit;
+  const upd=()=>{const n=$('sdName').value.trim(),c=$('sdClass').value.trim();ls.set('name',n);ls.set('class',c);$('cName').textContent=n||'Впиши ім’я вгорі';$('cClass').textContent=c};
+  $('sdName').oninput=upd;$('sdClass').oninput=upd;
+  sdSim.run(srcOf(fi));
+  $('sdCopy').onclick=async()=>{const code=srcOf(fi);
+    try{await navigator.clipboard.writeText(code);toast('Код скопійовано. На комп’ютері встав його в IDLE або Thonny і запусти (F5).')}catch(e){window.prompt('Скопіюй код:',code)}}}
+
+async function submit(){const n=$('sdName').value.trim(),c=$('sdClass').value.trim();
+  if(!n){$('sdSt').innerHTML='<div class="fb no">Впиши прізвище та ім’я вгорі.</div>';$('sdName').focus();return}
+  const s=PR.best.reduce((a,b)=>a+b,0),g=Math.max(1,s),code=srcOf(finalIdx()).trim();
+  const text=`«Кольорова англійська» (tkinter), інформатика 8 клас\nУчень: ${n}${c?', '+c:''}\n`+PRT.map((t,i)=>`Крок ${i+1}. ${t.t}: ${PR.best[i]}/${t.max}`).join('\n')+`\nОцінка: ${g} з 12\n\n${code}`;
+  if(!TEACHER_EMAIL||location.protocol==='file:'){$('sdSt').innerHTML='<div class="fb info"><span class="ttl">Сторінку відкрито як файл, тому пошта не працює.</span>Результат скопійовано: перешли його вчителю в месенджер разом зі скріншотом.</div>';
+    try{if(navigator.share){await navigator.share({title:'Кольорова англійська',text});return}await navigator.clipboard.writeText(text)}catch(e){}return}
+  $('sdSt').innerHTML='<p class="scale">Надсилаю…</p>';
+  const body={_subject:`Інформатика: «Кольорова англійська» (tkinter): ${n}${c?', '+c:''}, оцінка ${g}`,_template:'table',_captcha:'false','Робота':'«Кольорова англійська» (tkinter), інформатика 8 клас','Учень':n,'Клас':c||'—'};
+  PRT.forEach((t,i)=>body[`Крок ${i+1}. ${t.t}`]=`${PR.best[i]} з ${t.max}`);
+  Object.assign(body,{'Оцінка':`${g} з 12`,'Дата':new Date().toLocaleString('uk-UA'),'Код програми':code});
+  try{const r=await fetch('https://formsubmit.co/ajax/'+encodeURIComponent(TEACHER_EMAIL),{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&String(j.success)!=='false')$('sdSt').innerHTML=`<div class="fb ok"><span class="ttl">Надіслано! Оцінка: ${g}.</span>Учитель отримав бали й код. Не забудь скріншот.</div>`;else throw 0}
+  catch(e){$('sdSt').innerHTML='<div class="fb no"><span class="ttl">Не вдалося надіслати.</span>Результат скопійовано: перешли його вчителю в месенджер разом зі скріншотом.</div>';try{await navigator.clipboard.writeText(text)}catch(e){}}}
+
+{const s=ls.get('tab');openTab(s&&$(s)?$(s):$('t-th'))}
+let rzT;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{thSim.draw();sim.draw();sdSim.draw()},150)});
+</script>
+</body>
+</html>
